@@ -317,8 +317,8 @@ function ahsobc_query_headless_gallery(\PDO $pdo, string $driver, array $query =
     try {
         $countRow = $pdo->query('SELECT COUNT(*) AS c FROM archive_items')->fetch();
         $currentCount = (int) ($countRow['c'] ?? 0);
-        $class1975Dir = dirname(__DIR__) . '/assets/img/archive/class-of-1975';
-        if ($currentCount === 0 || ($currentCount < 50 && is_dir($class1975Dir))) {
+        $hasPlaceholders = (int) $pdo->query("SELECT COUNT(*) FROM archive_items WHERE slug = '1932-athletics-squad'")->fetchColumn() > 0;
+        if ($currentCount === 0 || $hasPlaceholders) {
             ahsobc_provision_archive($pdo, $driver);
         }
     } catch (\PDOException $e) {

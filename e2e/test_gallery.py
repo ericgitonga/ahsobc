@@ -25,9 +25,9 @@ def test_gallery_photostream_and_albums_tabs():
         assert resp is not None and resp.status == 200
         assert "Centennial Photo Gallery" in page.title()
 
-        # Verify Photostream includes both canonical manifest items and the Class of 1975 album (131 total)
+        # Verify Photostream contains strictly the 126 Class of 1975 photographs (no SVG placeholders)
         cards = page.locator("article.photo-card")
-        assert cards.count() >= len(rows) + 126
+        assert cards.count() == 126
         assert page.get_by_role("link", name=first_row["dcterms:title"]).is_visible()
 
         # Switch to Flickr Albums tab and verify Class of 1975 Album + 8-House Albums render
@@ -41,11 +41,11 @@ def test_gallery_photostream_and_albums_tabs():
         # Click the Class of 1975 album card and verify cohort=1975 photos load
         page.locator("a.album-card[data-album-val='1975']").first.click()
         assert "cohort=1975" in page.url
-        assert page.locator("article.photo-card").count() >= 126
+        assert page.locator("article.photo-card").count() == 126
 
-        # Filter by 1930s decade pill
-        page.get_by_role("link", name="1930s").first.click()
-        assert "decade=1930s" in page.url
+        # Filter by 2020s decade pill
+        page.get_by_role("link", name="2020s").first.click()
+        assert "decade=2020s" in page.url
         assert page.get_by_role("link", name=first_row["dcterms:title"]).is_visible()
 
 

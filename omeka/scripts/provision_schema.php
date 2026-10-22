@@ -277,33 +277,17 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
         ]);
     }
 
-    // 5. Ingest the canonical sample_manifest.csv records into archive_items
-    $manifestPath = dirname(__DIR__) . '/staging/sample_manifest.csv';
-    $csvContent = (string) file_get_contents($manifestPath);
-    $validated = ahsobc_validate_csv_manifest($csvContent, null);
-    if (!$validated['valid']) {
-        throw new \RuntimeException('Seed manifest validation failed: ' . implode('; ', $validated['errors']));
-    }
-
-    $alumniLinksByFile = [
-        'files/staging/1932_athletics_squad.tif' => ['elijah-kariuki-1932'],
-        'files/staging/1985_25th_reunion_dinner.jpg' => ['dr-kamau-githunguri-1960'],
-        'files/staging/2018_casual_london_meetup.jpg' => ['eng-david-mwangi-1974', 'prof-peter-onyango-1975'],
-        'files/staging/1958_chapel_choir_prefects.jpg' => ['dr-kamau-githunguri-1960'],
-        'files/staging/2026_centennial_founders_day.jpg' => ['dr-kamau-githunguri-1960', 'eng-david-mwangi-1974', 'prof-peter-onyango-1975'],
-    ];
-
-    $defaultFaceTagsByFile = [
-        'files/staging/1932_athletics_squad.tif' => [
-            'Row 1, Position 3 from Left: Snr. Master Elijah Kariuki (School No. #118, Class of 1932, Grieve House, IIIF xywh=420,310,180,220)',
-        ],
-        'files/staging/1958_chapel_choir_prefects.jpg' => [
-            'Row 2, Position 4 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Francis House, IIIF xywh=610,280,150,190)',
-        ],
-        'files/staging/1985_25th_reunion_dinner.jpg' => [
-            'Row 1, Position 2 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Francis House, IIIF xywh=380,240,170,210)',
-        ],
-    ];
+    // 5. Purge any legacy placeholder items and ingest only the Class of 1975 Golden Jubilee Album photographs
+    $pdo->exec("
+        DELETE FROM archive_items
+        WHERE slug IN (
+            '1932-athletics-squad',
+            '1958-chapel-choir-prefects',
+            '1985-25th-reunion-dinner',
+            '2018-casual-london-meetup',
+            '2026-centennial-founders-day'
+        )
+    ");
 
     $stmtItem = $pdo->prepare('
         REPLACE INTO archive_items (
@@ -319,37 +303,6 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
         )
     ');
 
-    foreach ($validated['records'] as $rec) {
-        $baseSlug = strtolower((string) preg_replace('/[^a-zA-Z0-9]+/', '-', pathinfo($rec['file_path'], PATHINFO_FILENAME)));
-        $temporal = $rec['parsed_temporal'];
-        $cohorts = $rec['parsed_cohorts'];
-        $houseClean = ahsobc_normalize_house($rec['dcterms:isPartOf']) ?? 'Francis';
-        $linkedAlumni = $alumniLinksByFile[$rec['file_path']] ?? [];
-        $faceTags = $defaultFaceTagsByFile[$rec['file_path']] ?? [];
-
-        $stmtItem->execute([
-            ':slug' => $baseSlug,
-            ':file_path' => $rec['file_path'],
-            ':title' => $rec['dcterms:title'],
-            ':photo_context' => $rec['dcterms:type'],
-            ':temporal_raw' => $rec['dcterms:temporal'],
-            ':year_start' => $temporal['year_start'],
-            ':year_end' => $temporal['year_end'],
-            ':decade' => $temporal['decade'],
-            ':era_id' => $temporal['era_id'],
-            ':era_label' => $temporal['era_label'],
-            ':cohorts_raw' => $rec['dcterms:subject'],
-            ':cohorts_json' => json_encode($cohorts['years']),
-            ':spatial' => $rec['dcterms:spatial'] ?: 'Alliance High School, Kikuyu',
-            ':house' => $houseClean,
-            ':description' => $rec['dcterms:description'],
-            ':featured_alumni_json' => json_encode($linkedAlumni),
-            ':face_tags_json' => json_encode($faceTags),
-            ':created_at' => gmdate('c'),
-        ]);
-    }
-
-    // 6. Ingest the Class of 1975 Golden Jubilee Album photographs (if present in public/assets/img/archive/class-of-1975/)
     $class1975Dir = dirname(__DIR__, 2) . '/public/assets/img/archive/class-of-1975';
     $class1975Count = 0;
     if (is_dir($class1975Dir)) {
@@ -362,6 +315,17 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
             $slug1975 = "class-of-1975-{$numPadded}";
             $relFilePath = "assets/img/archive/class-of-1975/class-of-1975-{$numPadded}.jpg";
             $assignedHouse = AHSOBC_HOUSES[$idx % $housesCount];
+
+            $linkedAlumni = [];
+            $faceTags = [];
+            if ($num === 1) {
+                $linkedAlumni = ['prof-peter-onyango-1975', 'dr-kamau-githunguri-1960'];
+                $faceTags = [
+                    'Row 1, Position 1 from Left: Prof. Peter Ochieng Onyango (School No. #3588, Class of 1975, Wilberforce House, IIIF xywh=420,310,180,220)',
+                ];
+            } elseif ($num === 2) {
+                $linkedAlumni = ['prof-peter-onyango-1975', 'eng-david-mwangi-1974'];
+            }
 
             $stmtItem->execute([
                 ':slug' => $slug1975,
@@ -379,8 +343,8 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
                 ':spatial' => 'Alliance High School / Nairobi Reunion',
                 ':house' => $assignedHouse,
                 ':description' => "Class of 1975 Golden Jubilee & Reunion gathering photograph #{$numPadded}. Click '✎ Edit Metadata' to add names, specific House, or caption details.",
-                ':featured_alumni_json' => json_encode($num === 1 ? ['prof-peter-onyango-1975'] : []),
-                ':face_tags_json' => json_encode([]),
+                ':featured_alumni_json' => json_encode($linkedAlumni),
+                ':face_tags_json' => json_encode($faceTags),
                 ':created_at' => gmdate('c'),
             ]);
             $class1975Count++;
@@ -393,7 +357,7 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
         'custom_vocabs_seeded' => count($vocabs),
         'resource_templates_seeded' => count($templates),
         'alumni_profiles_seeded' => count($profiles),
-        'archive_items_seeded' => count($validated['records']) + $class1975Count,
+        'archive_items_seeded' => $class1975Count,
         'class_of_1975_seeded' => $class1975Count,
     ];
 }

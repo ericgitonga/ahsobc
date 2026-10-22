@@ -34,9 +34,9 @@ $TESTS = [
             \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ]);
 
-        $byAlumnusQuery = ahsobc_query_headless_gallery($pdo, 'sqlite', ['q' => 'Kamau']);
+        $byAlumnusQuery = ahsobc_query_headless_gallery($pdo, 'sqlite', ['q' => 'Onyango']);
         if ($byAlumnusQuery['filtered_count'] < 2) {
-            throw new \RuntimeException('Expected search for "Kamau" to match linked photographs');
+            throw new \RuntimeException('Expected search for "Onyango" to match linked Class of 1975 photographs');
         }
 
         $byHouse = ahsobc_query_headless_gallery($pdo, 'sqlite', ['house' => 'Francis']);
@@ -52,22 +52,22 @@ $TESTS = [
         ahsobc_provision_archive($pdo, 'sqlite');
 
         $upd = ahsobc_update_item_metadata($pdo, 'sqlite', [
-            'slug' => '1932-athletics-squad',
-            'title' => '1932 Senior Athletics & Relay Squad',
-            'photo_context' => 'School Days',
-            'temporal_raw' => 'circa 1931-1932',
-            'cohorts_raw' => '1932',
-            'house' => 'Grieve',
-            'spatial' => 'The Backfield, Kikuyu',
-            'description' => 'Updated caption for the 1932 athletics squad.',
+            'slug' => 'class-of-1975-001',
+            'title' => 'Class of 1975 Golden Jubilee · Opening Portrait',
+            'photo_context' => 'Milestone Reunion',
+            'temporal_raw' => '2025',
+            'cohorts_raw' => '1975',
+            'house' => 'Livingstone',
+            'spatial' => 'Alliance High School, Kikuyu',
+            'description' => 'Updated caption for Class of 1975 photograph #001.',
         ]);
-        if (!$upd['valid'] || ($upd['item']['title'] ?? '') !== '1932 Senior Athletics & Relay Squad') {
+        if (!$upd['valid'] || ($upd['item']['title'] ?? '') !== 'Class of 1975 Golden Jubilee · Opening Portrait') {
             throw new \RuntimeException('Failed to update item metadata: ' . json_encode($upd['errors']));
         }
 
         // Reject invalid house
         $badUpd = ahsobc_update_item_metadata($pdo, 'sqlite', [
-            'slug' => '1932-athletics-squad',
+            'slug' => 'class-of-1975-001',
             'house' => 'NonExistentHouse',
         ]);
         if ($badUpd['valid']) {
@@ -93,15 +93,15 @@ $TESTS = [
         $stmt = $pdo->prepare('UPDATE archive_items SET face_tags_json = :tags WHERE slug = :slug');
         $stmt->execute([
             ':tags' => json_encode([
-                'Row 1, Position 3 from Left: Approved Person (School No. #118, Class of 1932, Grieve House, IIIF xywh=420,310,180,220)',
+                'Row 1, Position 1 from Left: Approved Person (School No. #3588, Class of 1975, Wilberforce House, IIIF xywh=420,310,180,220)',
                 'Row 2, Position 1 from Left: Unverified Person [Pending Moderation]',
             ]),
-            ':slug' => '1932-athletics-squad',
+            ':slug' => 'class-of-1975-001',
         ]);
 
         $payload = ahsobc_query_headless_gallery($pdo, 'sqlite', []);
         foreach ($payload['items'] as $it) {
-            if ($it['slug'] === '1932-athletics-squad') {
+            if ($it['slug'] === 'class-of-1975-001') {
                 foreach ($it['face_tags'] as $tag) {
                     if (str_contains($tag, '[Pending Moderation]')) {
                         throw new \RuntimeException('Unmoderated [Pending Moderation] face tag leaked to public gallery API');

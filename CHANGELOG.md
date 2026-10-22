@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.6.0] - 2026-10-23
+
+### Removed
+
+- Removed the 5 placeholder SVG images (`public/assets/img/archive/*.svg`) and their seed catalog entries (`1932-athletics-squad`, `1958-chapel-choir-prefects`, `1985-25th-reunion-dinner`, `2018-casual-london-meetup`, `2026-centennial-founders-day`) so the Centennial Photo Gallery contains exclusively the **126 Class of 1975** photographs (`class-of-1975-001` through `class-of-1975-126`) (closes #23)
+
+tag: `v0.6.0`
+
 ## [0.5.0] - 2026-10-23
 
 ### Added
