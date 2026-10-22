@@ -25,9 +25,13 @@ $TESTS = [
             throw new \RuntimeException('Should reject empty cohort string');
         }
     },
-    'normalizes_nine_ahs_houses_and_school_numbers' => function (): void {
-        if (ahsobc_normalize_house('carey francis house') !== 'Carey Francis') {
-            throw new \RuntimeException('Failed Carey Francis normalization');
+    'normalizes_eight_ahs_houses_and_school_numbers' => function (): void {
+        $expectedOrder = ['Livingstone', 'Aggrey', 'Wilberforce', 'Grieve', 'Arthur', 'Francis', 'Smith', 'Sellwood'];
+        if (AHSOBC_HOUSES !== $expectedOrder) {
+            throw new \RuntimeException('Unexpected AHSOBC_HOUSES order: ' . implode(', ', AHSOBC_HOUSES));
+        }
+        if (ahsobc_normalize_house('francis house') !== 'Francis') {
+            throw new \RuntimeException('Failed Francis normalization');
         }
         if (ahsobc_normalize_house('Wilberforce') !== 'Wilberforce') {
             throw new \RuntimeException('Failed Wilberforce normalization');
@@ -49,13 +53,13 @@ $TESTS = [
             'full_name' => 'Dr. Joseph Kamau Githunguri',
             'school_number' => '#1842',
             'cohort' => '1960',
-            'house' => 'Carey Francis House',
+            'house' => 'Francis House',
             'iiif_region' => '610,280,150,190',
         ]);
         if (!$res['valid']) {
             throw new \RuntimeException('Expected valid face identification: ' . json_encode($res['errors']));
         }
-        $expected = 'Row 2, Position 4 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Carey Francis House, IIIF xywh=610,280,150,190)';
+        $expected = 'Row 2, Position 4 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Francis House, IIIF xywh=610,280,150,190)';
         if ($res['formatted_note'] !== $expected) {
             throw new \RuntimeException("Unexpected formatted note: {$res['formatted_note']}");
         }

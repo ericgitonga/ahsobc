@@ -302,7 +302,7 @@ $activeModules = $pdo->query('SELECT id, version FROM omeka_modules WHERE is_act
             <div>
                 <label for="filter-house">AHS House</label>
                 <select id="filter-house" name="house">
-                    <option value="">All 9 Houses</option>
+                    <option value="">All 8 Houses</option>
                     <?php foreach (AHSOBC_HOUSES as $houseName): ?>
                         <option value="<?= htmlspecialchars($houseName, ENT_QUOTES, 'UTF-8') ?>"
                             <?= $filterHouse === $houseName ? 'selected' : '' ?>>

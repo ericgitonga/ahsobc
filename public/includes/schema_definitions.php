@@ -25,15 +25,14 @@ const AHSOBC_PHOTO_CONTEXTS = [
  * Official Alliance High School ("Bush") Houses for cohort/house faceting.
  */
 const AHSOBC_HOUSES = [
-    'Aggrey',
-    'Arthur',
-    'Carey Francis',
-    'Grieve',
     'Livingstone',
-    'Sellwood',
-    'Smith',
-    'Stevenson',
+    'Aggrey',
     'Wilberforce',
+    'Grieve',
+    'Arthur',
+    'Francis',
+    'Smith',
+    'Sellwood',
 ];
 
 /**

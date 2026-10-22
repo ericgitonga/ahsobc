@@ -9,7 +9,7 @@
  *      Common -> CustomVocab -> IiifServer -> ImageServer -> Mirador -> CSVImport -> Mapping -> Collecting.
  *   3. Seeds Custom Vocabularies:
  *      - "AHS Photo Context": School Days, Milestone Reunion, Regional Gathering, Informal Encounter
- *      - "AHS Houses & Societies": Aggrey, Arthur, Carey Francis, Grieve, Livingstone, Sellwood, Smith, Stevenson, Wilberforce
+ *      - "AHS Houses & Societies": Livingstone, Aggrey, Wilberforce, Grieve, Arthur, Francis, Smith, Sellwood
  *   4. Seeds Resource Templates:
  *      - "Alumni Photograph" (dcterms:title, dcterms:type, dcterms:temporal, dcterms:relation, dcterms:subject, dcterms:spatial, dcterms:description, dcterms:isPartOf)
  *      - "Alumni Profile" (dcterms:title, dcterms:identifier, dcterms:subject, dcterms:isPartOf, dcterms:relation)
@@ -233,7 +233,7 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
             'full_name' => 'Dr. Joseph Kamau Githunguri',
             'school_number' => '1842',
             'cohort_year' => 1960,
-            'house' => 'Carey Francis',
+            'house' => 'Francis',
             'bio_summary' => 'School Prefect (1959–1960), Chapel Choir tenor, and Class of 1960 Silver & Centennial Reunion Convener.',
         ],
         [
@@ -298,10 +298,10 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
             'Row 1, Position 3 from Left: Snr. Master Elijah Kariuki (School No. #118, Class of 1932, Grieve House, IIIF xywh=420,310,180,220)',
         ],
         'files/staging/1958_chapel_choir_prefects.jpg' => [
-            'Row 2, Position 4 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Carey Francis House, IIIF xywh=610,280,150,190)',
+            'Row 2, Position 4 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Francis House, IIIF xywh=610,280,150,190)',
         ],
         'files/staging/1985_25th_reunion_dinner.jpg' => [
-            'Row 1, Position 2 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Carey Francis House, IIIF xywh=380,240,170,210)',
+            'Row 1, Position 2 from Left: Dr. Joseph Kamau Githunguri (School No. #1842, Class of 1960, Francis House, IIIF xywh=380,240,170,210)',
         ],
     ];
 
@@ -323,7 +323,7 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
         $baseSlug = strtolower((string) preg_replace('/[^a-zA-Z0-9]+/', '-', pathinfo($rec['file_path'], PATHINFO_FILENAME)));
         $temporal = $rec['parsed_temporal'];
         $cohorts = $rec['parsed_cohorts'];
-        $houseClean = ahsobc_normalize_house($rec['dcterms:isPartOf']) ?? 'Carey Francis';
+        $houseClean = ahsobc_normalize_house($rec['dcterms:isPartOf']) ?? 'Francis';
         $linkedAlumni = $alumniLinksByFile[$rec['file_path']] ?? [];
         $faceTags = $defaultFaceTagsByFile[$rec['file_path']] ?? [];
 
