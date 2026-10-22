@@ -27,6 +27,7 @@ const AHSOBC_REQUIRED_MANIFEST_HEADERS = [
 
 /**
  * Checks if a cell string starts with a dangerous spreadsheet formula character.
+ * Blocks '=', '+', '-', '@', '|', Tab, and CR to prevent CSV/DDE formula execution.
  */
 function ahsobc_has_csv_injection(string $value): bool
 {
@@ -34,7 +35,7 @@ function ahsobc_has_csv_injection(string $value): bool
     if ($trimmed === '') {
         return false;
     }
-    return in_array($trimmed[0], ['=', '+', '@', "\t", "\r"], true);
+    return in_array($trimmed[0], ['=', '+', '-', '@', '|', "\t", "\r"], true);
 }
 
 /**

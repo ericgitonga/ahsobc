@@ -359,8 +359,11 @@
     if (editFormEl) {
         editFormEl.addEventListener('submit', function (e) {
             e.preventDefault();
+            const csrfEl = document.getElementById('edit-csrf-token');
+            const csrfToken = (csrfEl && csrfEl.value) || window.AHSOBC_CSRF_TOKEN || '';
             const payload = {
                 action: 'update_metadata',
+                csrf_token: csrfToken,
                 slug: document.getElementById('edit-slug').value,
                 title: document.getElementById('edit-title').value,
                 description: document.getElementById('edit-description').value,
@@ -373,7 +376,10 @@
 
             fetch('/api/gallery.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken,
+                },
                 body: JSON.stringify(payload),
             })
                 .then(function (r) {
@@ -460,19 +466,27 @@
     const closeUploadBtn = document.getElementById('close-upload-modal-btn');
     const modalTabPhoto = document.getElementById('modal-tab-photo');
     const modalTabFace = document.getElementById('modal-tab-face');
+    const modalTabTakedown = document.getElementById('modal-tab-takedown');
     const modalFormPhoto = document.getElementById('modal-form-photo');
     const modalFormFace = document.getElementById('modal-form-face');
+    const modalFormTakedown = document.getElementById('modal-form-takedown');
 
     function openUploadModal(mode, targetSlug) {
         if (!uploadModal) return;
+        const isPhoto = mode === 'photo';
         const isFace = mode === 'face';
-        if (modalFormPhoto) modalFormPhoto.hidden = isFace;
+        const isTakedown = mode === 'takedown';
+        if (modalFormPhoto) modalFormPhoto.hidden = !isPhoto;
         if (modalFormFace) modalFormFace.hidden = !isFace;
-        if (modalTabPhoto) modalTabPhoto.classList.toggle('active', !isFace);
+        if (modalFormTakedown) modalFormTakedown.hidden = !isTakedown;
+        if (modalTabPhoto) modalTabPhoto.classList.toggle('active', isPhoto);
         if (modalTabFace) modalTabFace.classList.toggle('active', isFace);
+        if (modalTabTakedown) modalTabTakedown.classList.toggle('active', isTakedown);
         if (targetSlug) {
             const selectEl = document.getElementById('face-target');
             if (selectEl) selectEl.value = targetSlug;
+            const tdSelectEl = document.getElementById('takedown-target');
+            if (tdSelectEl) tdSelectEl.value = targetSlug;
         }
         uploadModal.hidden = false;
     }
@@ -495,6 +509,11 @@
     if (modalTabFace) {
         modalTabFace.addEventListener('click', function () {
             openUploadModal('face', null);
+        });
+    }
+    if (modalTabTakedown) {
+        modalTabTakedown.addEventListener('click', function () {
+            openUploadModal('takedown', null);
         });
     }
 })();

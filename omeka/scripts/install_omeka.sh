@@ -37,7 +37,7 @@ mkdir -p "$TARGET_DIR/modules"
 install_module() {
     local name="$1"
     local zip_url="$2"
-    local repo_url="$3"
+    local expected_sha256="${3:-}"
     local dest="$TARGET_DIR/modules/$name"
 
     if [ -d "$dest" ] && [ -f "$dest/config/module.ini" ]; then
@@ -45,29 +45,28 @@ install_module() {
         return 0
     fi
 
-    echo "-- Installing module '$name' --"
-    if curl -fsSL --proto '=https' --tlsv1.2 "$zip_url" -o "$TMP_WORK/${name}.zip" 2>/dev/null; then
-        mkdir -p "$TMP_WORK/mod_${name}"
-        unzip -q "$TMP_WORK/${name}.zip" -d "$TMP_WORK/mod_${name}"
-        local inner
-        inner="$(find "$TMP_WORK/mod_${name}" -mindepth 1 -maxdepth 1 -type d | head -n 1)"
-        if [ -n "$inner" ]; then
-            cp -r "$inner" "$dest"
-        fi
-    else
-        echo "   Release zip unavailable; falling back to shallow git clone for $name"
-        git clone --depth 1 "$repo_url" "$dest"
+    echo "-- Installing module '$name' from $zip_url --"
+    curl -fsSL --proto '=https' --tlsv1.2 "$zip_url" -o "$TMP_WORK/${name}.zip"
+    if [ -n "$expected_sha256" ]; then
+        echo "${expected_sha256}  $TMP_WORK/${name}.zip" | sha256sum -c -
+    fi
+    mkdir -p "$TMP_WORK/mod_${name}"
+    unzip -q "$TMP_WORK/${name}.zip" -d "$TMP_WORK/mod_${name}"
+    local inner
+    inner="$(find "$TMP_WORK/mod_${name}" -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+    if [ -n "$inner" ]; then
+        cp -r "$inner" "$dest"
     fi
 }
 
-install_module "Common"      "https://github.com/Daniel-KM/Omeka-S-module-Common/releases/download/3.4.62/Common-3.4.62.zip"           "https://github.com/Daniel-KM/Omeka-S-module-Common.git"
-install_module "CustomVocab" "https://github.com/omeka-s-modules/CustomVocab/releases/download/v2.0.2/CustomVocab-2.0.2.zip"          "https://github.com/omeka-s-modules/CustomVocab.git"
-install_module "IiifServer"  "https://github.com/Daniel-KM/Omeka-S-module-IiifServer/releases/download/3.6.21/IiifServer-3.6.21.zip"   "https://github.com/Daniel-KM/Omeka-S-module-IiifServer.git"
-install_module "ImageServer" "https://github.com/Daniel-KM/Omeka-S-module-ImageServer/releases/download/3.6.19/ImageServer-3.6.19.zip" "https://github.com/Daniel-KM/Omeka-S-module-ImageServer.git"
-install_module "Mirador"     "https://github.com/Daniel-KM/Omeka-S-module-Mirador/releases/download/3.4.8/Mirador-3.4.8.zip"         "https://github.com/Daniel-KM/Omeka-S-module-Mirador.git"
-install_module "CSVImport"   "https://github.com/omeka-s-modules/CSVImport/releases/download/v2.6.1/CSVImport-2.6.1.zip"              "https://github.com/omeka-s-modules/CSVImport.git"
-install_module "Mapping"     "https://github.com/omeka-s-modules/Mapping/releases/download/v2.1.0/Mapping-2.1.0.zip"                  "https://github.com/omeka-s-modules/Mapping.git"
-install_module "Collecting"  "https://github.com/omeka-s-modules/Collecting/releases/download/v1.11.0/Collecting-1.11.0.zip"          "https://github.com/omeka-s-modules/Collecting.git"
+install_module "Common"      "https://github.com/Daniel-KM/Omeka-S-module-Common/releases/download/3.4.62/Common-3.4.62.zip"           "${AHSOBC_SHA256_COMMON:-}"
+install_module "CustomVocab" "https://github.com/omeka-s-modules/CustomVocab/releases/download/v2.0.2/CustomVocab-2.0.2.zip"          "${AHSOBC_SHA256_CUSTOMVOCAB:-}"
+install_module "IiifServer"  "https://github.com/Daniel-KM/Omeka-S-module-IiifServer/releases/download/3.6.21/IiifServer-3.6.21.zip"   "${AHSOBC_SHA256_IIIFSERVER:-}"
+install_module "ImageServer" "https://github.com/Daniel-KM/Omeka-S-module-ImageServer/releases/download/3.6.19/ImageServer-3.6.19.zip" "${AHSOBC_SHA256_IMAGESERVER:-}"
+install_module "Mirador"     "https://github.com/Daniel-KM/Omeka-S-module-Mirador/releases/download/3.4.8/Mirador-3.4.8.zip"         "${AHSOBC_SHA256_MIRADOR:-}"
+install_module "CSVImport"   "https://github.com/omeka-s-modules/CSVImport/releases/download/v2.6.1/CSVImport-2.6.1.zip"              "${AHSOBC_SHA256_CSVIMPORT:-}"
+install_module "Mapping"     "https://github.com/omeka-s-modules/Mapping/releases/download/v2.1.0/Mapping-2.1.0.zip"                  "${AHSOBC_SHA256_MAPPING:-}"
+install_module "Collecting"  "https://github.com/omeka-s-modules/Collecting/releases/download/v1.11.0/Collecting-1.11.0.zip"          "${AHSOBC_SHA256_COLLECTING:-}"
 
 # 3. Install custom AHSOBC Centennial theme
 mkdir -p "$TARGET_DIR/themes"

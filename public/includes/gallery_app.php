@@ -93,17 +93,33 @@ if (!empty($_GET['iiif_manifest'])) {
     exit;
 }
 
-// 2. Handle POST Submissions (Inline Metadata Edit OR Crowdsourced Photo/Face Tag)
+// 2. Handle POST Submissions (Inline Metadata Edit OR Crowdsourced Photo/Face Tag/DPA Takedown)
+$csrfToken = ahsobc_csrf_token();
 $flashSuccess = null;
 $flashErrors = [];
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['ahsobc_edit_metadata_submit'])) {
-    $upd = ahsobc_update_item_metadata($pdo, $conn['driver'], $_POST);
-    if (!$upd['valid']) {
-        http_response_code(422);
-        $flashErrors = $upd['errors'];
+    $clientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+    $rlFile = dirname(__DIR__, 2) . '/.omeka-runtime/collecting_ratelimit.json';
+    $maxReq = (int) (getenv('AHSOBC_RATE_LIMIT_MAX') ?: 25);
+
+    if (!ahsobc_check_rate_limit($clientIp, $rlFile, $maxReq, 3600)) {
+        http_response_code(429);
+        $flashErrors[] = 'Rate limit exceeded: too many edits from your connection. Please try again later.';
+    } elseif (!ahsobc_verify_csrf_token((string) ($_POST['csrf_token'] ?? ''))) {
+        http_response_code(403);
+        $flashErrors[] = 'Invalid security token (CSRF). Please refresh the page and try again.';
+    } elseif (!ahsobc_verify_editor_token((string) ($_POST['editor_token'] ?? ''))) {
+        http_response_code(401);
+        $flashErrors[] = 'Valid archivist editor token required for direct metadata updates.';
     } else {
-        $flashSuccess = 'Metadata updated for "' . htmlspecialchars((string) $upd['item']['title'], ENT_QUOTES, 'UTF-8') . '".';
+        $upd = ahsobc_update_item_metadata($pdo, $conn['driver'], $_POST);
+        if (!$upd['valid']) {
+            http_response_code(422);
+            $flashErrors = $upd['errors'];
+        } else {
+            $flashSuccess = 'Metadata updated for "' . htmlspecialchars((string) $upd['item']['title'], ENT_QUOTES, 'UTF-8') . '".';
+        }
     }
 }
 
@@ -137,23 +153,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && isset($_POST['ahsobc_col
                 ':created' => gmdate('c'),
             ]);
 
-            if ($sanitized['contribution_type'] === 'face_id' && !empty($sanitized['target_item_id'])) {
-                $stmtItem = $pdo->prepare('SELECT face_tags_json FROM archive_items WHERE slug = :slug');
-                $stmtItem->execute([':slug' => $sanitized['target_item_id']]);
-                $existingRow = $stmtItem->fetch();
-                if ($existingRow) {
-                    $tags = json_decode((string) $existingRow['face_tags_json'], true) ?: [];
-                    $tags[] = $sanitized['formatted_annotation'] . ' [Pending Moderation]';
-                    $stmtUpd = $pdo->prepare('UPDATE archive_items SET face_tags_json = :tags WHERE slug = :slug');
-                    $stmtUpd->execute([
-                        ':tags' => json_encode($tags, JSON_UNESCAPED_SLASHES),
-                        ':slug' => $sanitized['target_item_id'],
-                    ]);
-                }
-            }
-
             $flashSuccess = 'Thank you, ' . htmlspecialchars($sanitized['submitter_name'], ENT_QUOTES, 'UTF-8')
-                . '! Your contribution has been recorded.';
+                . '! Your contribution has been recorded and queued for archivist review.';
         }
     }
 }
@@ -509,6 +510,7 @@ $hasActiveFilter = ($filterDecade !== '' || $filterContext !== '' || $filterHous
                 <!-- Inline Metadata Editor Form (Hidden until user clicks "✎ Edit Metadata") -->
                 <form id="lb-edit-form" class="lb-edit-form" method="post" action="/gallery/" hidden>
                     <input type="hidden" name="ahsobc_edit_metadata_submit" value="1">
+                    <input type="hidden" id="edit-csrf-token" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" id="edit-slug" name="slug" value="">
 
                     <div>
@@ -575,10 +577,12 @@ $hasActiveFilter = ($filterDecade !== '' || $filterContext !== '' || $filterHous
             <div class="decade-pills" style="margin-top:0.85rem;">
                 <button type="button" id="modal-tab-photo" class="decade-pill active">Submit a Photograph</button>
                 <button type="button" id="modal-tab-face" class="decade-pill">Tag a Classmate in a Photo</button>
+                <button type="button" id="modal-tab-takedown" class="decade-pill">DPA Takedown / Privacy Request</button>
             </div>
 
             <!-- Form A: Submit Photograph -->
             <form id="modal-form-photo" class="form-stack" method="post" action="/gallery/" aria-label="Submit Archival Photograph">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <div style="position:absolute;left:-9999px;" aria-hidden="true">
                     <input type="text" name="website_url_hp" value="" tabindex="-1" autocomplete="off">
                 </div>
@@ -632,6 +636,7 @@ $hasActiveFilter = ($filterDecade !== '' || $filterContext !== '' || $filterHous
 
             <!-- Form B: Tag a Classmate (Contribution Type 3) -->
             <form id="modal-form-face" class="form-stack" method="post" action="/gallery/" aria-label="Identify a Classmate in a Group Photo" hidden>
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <div style="position:absolute;left:-9999px;" aria-hidden="true">
                     <input type="text" name="website_url_hp" value="" tabindex="-1" autocomplete="off">
                 </div>
@@ -694,11 +699,50 @@ $hasActiveFilter = ($filterDecade !== '' || $filterContext !== '' || $filterHous
                 </label>
                 <button type="submit" name="ahsobc_collecting_submit" value="1" class="btn-primary">Submit Face Identification</button>
             </form>
+
+            <!-- Form C: Kenya DPA (2019) Takedown / Privacy Objection Request -->
+            <form id="modal-form-takedown" class="form-stack" method="post" action="/gallery/" aria-label="Kenya DPA Takedown or Privacy Objection" hidden>
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <div style="position:absolute;left:-9999px;" aria-hidden="true">
+                    <input type="text" name="website_url_hp" value="" tabindex="-1" autocomplete="off">
+                </div>
+                <input type="hidden" name="contribution_type" value="dpa_takedown">
+                <div>
+                    <label for="takedown-target">Photograph or Record</label>
+                    <select id="takedown-target" name="target_item_id" required>
+                        <?php foreach ($allItems as $itOpt): ?>
+                            <option value="<?= htmlspecialchars($itOpt['slug'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($itOpt['title'], ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars($itOpt['temporal_raw'], ENT_QUOTES, 'UTF-8') ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                    <div>
+                        <label for="takedown-name">Your Full Name</label>
+                        <input id="takedown-name" type="text" name="submitter_name" required>
+                    </div>
+                    <div>
+                        <label for="takedown-email">Your Email</label>
+                        <input id="takedown-email" type="email" name="submitter_email" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="takedown-reason">Details of Takedown or Attribution Correction Request (Kenya DPA 2019)</label>
+                    <textarea id="takedown-reason" name="takedown_reason" rows="3" required placeholder="Specify the photograph or personal identification tag you wish removed or corrected..."></textarea>
+                </div>
+                <label style="display:flex;align-items:flex-start;gap:0.5rem;font-weight:400;font-size:0.78rem;">
+                    <input type="checkbox" name="dpa_consent" value="1" required style="margin-top:0.2rem;">
+                    <span>I confirm that I am the data subject or authorized representative submitting this request under the Kenya Data Protection Act (2019).</span>
+                </label>
+                <button type="submit" name="ahsobc_collecting_submit" value="1" class="btn-primary">Submit DPA Takedown Request</button>
+            </form>
         </div>
     </div>
 
     <script>
-        window.AHSOBC_INITIAL_ITEMS = <?= json_encode($headlessItems, JSON_UNESCAPED_SLASHES) ?>;
+        window.AHSOBC_CSRF_TOKEN = <?= json_encode($csrfToken, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        window.AHSOBC_INITIAL_ITEMS = <?= json_encode($headlessItems, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     </script>
     <script src="/assets/js/gallery-ui.js" defer></script>
 </body>

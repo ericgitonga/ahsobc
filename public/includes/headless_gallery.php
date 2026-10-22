@@ -176,6 +176,8 @@ function ahsobc_update_item_metadata(\PDO $pdo, string $driver, array $input): a
     $title = trim((string) ($input['title'] ?? $existing['title']));
     if (mb_strlen($title) < 3 || mb_strlen($title) > 180) {
         $errors[] = 'Title must be between 3 and 180 characters.';
+    } elseif (ahsobc_has_csv_injection($title)) {
+        $errors[] = 'Title cannot begin with a spreadsheet formula character.';
     }
 
     $photoContext = trim((string) ($input['photo_context'] ?? $existing['photo_context']));
@@ -204,11 +206,15 @@ function ahsobc_update_item_metadata(\PDO $pdo, string $driver, array $input): a
     $spatial = trim((string) ($input['spatial'] ?? $existing['spatial']));
     if ($spatial === '') {
         $spatial = 'Alliance High School, Kikuyu';
+    } elseif (ahsobc_has_csv_injection($spatial)) {
+        $errors[] = 'Location cannot begin with a spreadsheet formula character.';
     }
 
     $description = trim((string) ($input['description'] ?? $existing['description']));
     if (mb_strlen($description) < 3) {
         $errors[] = 'Description / caption must be at least 3 characters.';
+    } elseif (ahsobc_has_csv_injection($description)) {
+        $errors[] = 'Description cannot begin with a spreadsheet formula character.';
     }
 
     if ($errors) {
@@ -311,12 +317,14 @@ function ahsobc_query_headless_gallery(\PDO $pdo, string $driver, array $query =
         $params[':house'] = $filterHouse;
     }
     if ($filterCohort !== '') {
-        $where[] = 'cohorts_raw LIKE :cohort';
-        $params[':cohort'] = '%' . $filterCohort . '%';
+        $escapedCohort = addcslashes($filterCohort, '%_\\');
+        $where[] = "cohorts_raw LIKE :cohort ESCAPE '\\'";
+        $params[':cohort'] = '%' . $escapedCohort . '%';
     }
     if ($filterAlumnus !== '') {
-        $where[] = 'featured_alumni_json LIKE :alumnus';
-        $params[':alumnus'] = '%' . $filterAlumnus . '%';
+        $escapedAlumnus = addcslashes($filterAlumnus, '%_\\');
+        $where[] = "featured_alumni_json LIKE :alumnus ESCAPE '\\'";
+        $params[':alumnus'] = '%' . $escapedAlumnus . '%';
     }
     if ($filterSearch !== '') {
         $matchingAlumniSlugs = [];
@@ -329,22 +337,23 @@ function ahsobc_query_headless_gallery(\PDO $pdo, string $driver, array $query =
             }
         }
 
+        $escapedQ = addcslashes($filterSearch, '%_\\');
         $searchClauses = [
-            'title LIKE :q',
-            'description LIKE :q',
-            'spatial LIKE :q',
-            'cohorts_raw LIKE :q',
-            'house LIKE :q',
-            'photo_context LIKE :q',
-            'temporal_raw LIKE :q',
-            'face_tags_json LIKE :q',
+            "title LIKE :q ESCAPE '\\'",
+            "description LIKE :q ESCAPE '\\'",
+            "spatial LIKE :q ESCAPE '\\'",
+            "cohorts_raw LIKE :q ESCAPE '\\'",
+            "house LIKE :q ESCAPE '\\'",
+            "photo_context LIKE :q ESCAPE '\\'",
+            "temporal_raw LIKE :q ESCAPE '\\'",
+            "face_tags_json LIKE :q ESCAPE '\\'",
         ];
-        $params[':q'] = '%' . $filterSearch . '%';
+        $params[':q'] = '%' . $escapedQ . '%';
 
         foreach ($matchingAlumniSlugs as $idx => $aSlug) {
             $paramKey = ":aslug_{$idx}";
-            $searchClauses[] = "featured_alumni_json LIKE {$paramKey}";
-            $params[$paramKey] = '%' . $aSlug . '%';
+            $searchClauses[] = "featured_alumni_json LIKE {$paramKey} ESCAPE '\\'";
+            $params[$paramKey] = '%' . addcslashes($aSlug, '%_\\') . '%';
         }
 
         $where[] = '(' . implode(' OR ', $searchClauses) . ')';
@@ -378,6 +387,11 @@ function ahsobc_query_headless_gallery(\PDO $pdo, string $driver, array $query =
         }
 
         $rawFaceTags = json_decode((string) $row['face_tags_json'], true) ?: [];
+        // Isolate unmoderated [Pending Moderation] tags from public responses (F-02 / Issue #17)
+        $approvedFaceTags = array_values(array_filter(
+            $rawFaceTags,
+            static fn($tag): bool => is_string($tag) && !str_contains($tag, '[Pending Moderation]')
+        ));
         $previewUrl = ahsobc_resolve_item_preview_url($row['slug'], $row['file_path']);
 
         $items[] = [
@@ -401,9 +415,9 @@ function ahsobc_query_headless_gallery(\PDO $pdo, string $driver, array $query =
             'iiif_manifest_url' => '/gallery/?iiif_manifest=' . rawurlencode($row['slug']),
             'item_url' => '/gallery/?item=' . rawurlencode($row['slug']) . '#mirador-viewer',
             'featured_alumni' => $featuredAlumni,
-            'face_tags' => $rawFaceTags,
-            'face_regions' => ahsobc_parse_face_tag_regions($rawFaceTags),
-            'face_tag_count' => count($rawFaceTags),
+            'face_tags' => $approvedFaceTags,
+            'face_regions' => ahsobc_parse_face_tag_regions($approvedFaceTags),
+            'face_tag_count' => count($approvedFaceTags),
         ];
     }
 

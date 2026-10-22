@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.4.0] - 2026-10-22
+
+### Added
+
+- Main page top navigation bar (`/`, `public/index.php`, `public/assets/css/main.css`) with brand header and direct navigation links to `Home` (`/`) and `Centennial Photo Gallery` (`/gallery/`), verified in `e2e/test_smoke.py` (closes #19)
+- Kenya Data Protection Act (2019) Takedown / Privacy Objection workflow (`dpa_takedown` contribution type in `public/includes/crowdsourcing_guard.php` and a dedicated **DPA Takedown / Privacy Request** tab in the Gallery modal) (closes #17)
+
+### Security
+
+- Enforced cryptographic CSRF token verification (`ahsobc_csrf_token()`, `ahsobc_verify_csrf_token()`), optional `AHSOBC_EDITOR_TOKEN` constant-time verification (`ahsobc_verify_editor_token()`), and atomic `flock()` sliding-window rate limiting on `POST /api/gallery.php` and `POST /gallery/` metadata mutation routes (closes #16)
+- Isolated unmoderated `face_id` submissions from public `archive_items.face_tags_json` until archivist moderation and filtered any `[Pending Moderation]` tags out of public `ahsobc_query_headless_gallery()` responses (closes #17)
+- Blocked leading `-` and `|` spreadsheet formula injection payloads in `ahsobc_has_csv_injection()`, enforced formula injection checks on crowdsourced and edited text fields, removed the unpinned `git clone` fallback in `omeka/scripts/install_omeka.sh`, and added `Content-Security-Policy`, `Strict-Transport-Security`, `LIKE` wildcard escaping, and `JSON_HEX_TAG` encoding (closes #18)
+
+tag: `v0.4.0`
+
 ## [0.3.0] - 2026-10-22
 
 ### Added

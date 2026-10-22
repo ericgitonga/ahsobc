@@ -82,4 +82,32 @@ $TESTS = [
             throw new \RuntimeException('Failed to parse IIIF xywh face region: ' . json_encode($regions));
         }
     },
+    'isolates_pending_moderation_face_tags_from_public_gallery' => function (): void {
+        $pdo = new \PDO('sqlite::memory:', null, null, [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+        ]);
+        ahsobc_provision_archive($pdo, 'sqlite');
+
+        // Simulate a pending-moderation tag in face_tags_json (Issue #17)
+        $stmt = $pdo->prepare('UPDATE archive_items SET face_tags_json = :tags WHERE slug = :slug');
+        $stmt->execute([
+            ':tags' => json_encode([
+                'Row 1, Position 3 from Left: Approved Person (School No. #118, Class of 1932, Grieve House, IIIF xywh=420,310,180,220)',
+                'Row 2, Position 1 from Left: Unverified Person [Pending Moderation]',
+            ]),
+            ':slug' => '1932-athletics-squad',
+        ]);
+
+        $payload = ahsobc_query_headless_gallery($pdo, 'sqlite', []);
+        foreach ($payload['items'] as $it) {
+            if ($it['slug'] === '1932-athletics-squad') {
+                foreach ($it['face_tags'] as $tag) {
+                    if (str_contains($tag, '[Pending Moderation]')) {
+                        throw new \RuntimeException('Unmoderated [Pending Moderation] face tag leaked to public gallery API');
+                    }
+                }
+            }
+        }
+    },
 ];
