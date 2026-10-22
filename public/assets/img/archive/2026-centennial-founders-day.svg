@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 825" width="1200" height="825" role="img" aria-label="2026 Centennial Founders Day Procession on the Parade Ground">
+  <defs>
+    <linearGradient id="centennialSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#072a47"/>
+      <stop offset="55%" stop-color="#0b8ed5"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="825" fill="url(#centennialSky)"/>
+  <!-- Kikuyu Green Turf -->
+  <rect x="0" y="540" width="1200" height="285" fill="#166534"/>
+  <!-- Centennial Arch Banner -->
+  <path d="M180,540 L180,220 Q600,90 1020,220 L1020,540" fill="none" stroke="#fbbf24" stroke-width="10"/>
+  <rect x="300" y="150" width="600" height="72" rx="36" fill="#072a47" stroke="#fbbf24" stroke-width="3"/>
+  <text x="600" y="196" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="27" fill="#ffffff" letter-spacing="3">STRONG TO SERVE · 1926–2026 CENTENNIAL</text>
+  <!-- Cross-generational Old Boys Procession across the 8 Houses -->
+  <g fill="#ffffff">
+    <circle cx="220" cy="430" r="28" fill="#5c3a21"/><rect x="188" y="463" width="64" height="150" rx="12" fill="#072a47"/>
+    <circle cx="345" cy="425" r="28" fill="#5c3a21"/><rect x="313" y="458" width="64" height="155" rx="12" fill="#0b8ed5"/>
+    <circle cx="470" cy="420" r="30" fill="#5c3a21"/><rect x="436" y="455" width="68" height="160" rx="12" fill="#072a47"/>
+    <circle cx="600" cy="416" r="31" fill="#5c3a21"/><rect x="565" y="452" width="70" height="164" rx="12" fill="#c99700"/>
+    <circle cx="730" cy="420" r="30" fill="#5c3a21"/><rect x="696" y="455" width="68" height="160" rx="12" fill="#072a47"/>
+    <circle cx="855" cy="425" r="28" fill="#5c3a21"/><rect x="823" y="458" width="64" height="155" rx="12" fill="#0b8ed5"/>
+    <circle cx="980" cy="430" r="28" fill="#5c3a21"/><rect x="948" y="463" width="64" height="150" rx="12" fill="#072a47"/>
+  </g>
+  <text x="600" y="758" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="24" fill="#fef08a" letter-spacing="2.5">PARADE GROUND, ALLIANCE HIGH SCHOOL, KIKUYU · 1 MARCH 2026</text>
+</svg>

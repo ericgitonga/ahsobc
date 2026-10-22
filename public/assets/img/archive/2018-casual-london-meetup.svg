@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 825" width="1200" height="825" role="img" aria-label="2018 UK Chapter Mini-Gathering in Covent Garden London">
+  <defs>
+    <linearGradient id="londonBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2942"/>
+      <stop offset="50%" stop-color="#134e7a"/>
+      <stop offset="100%" stop-color="#072a47"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="825" fill="url(#londonBg)"/>
+  <!-- Covent Garden Conservatory Arches -->
+  <path d="M120,620 L120,260 A180,180 0 0,1 480,260 L480,620" fill="none" stroke="#38bdf8" stroke-opacity="0.28" stroke-width="8"/>
+  <path d="M720,620 L720,260 A180,180 0 0,1 1080,260 L1080,620" fill="none" stroke="#38bdf8" stroke-opacity="0.28" stroke-width="8"/>
+  <!-- Three Alumni (Classes of 1974 & 1975) -->
+  <g>
+    <circle cx="390" cy="390" r="42" fill="#8d5524"/>
+    <rect x="325" y="442" width="130" height="210" rx="20" fill="#0b8ed5"/>
+    <circle cx="600" cy="380" r="44" fill="#704214"/>
+    <rect x="532" y="434" width="136" height="218" rx="20" fill="#1e293b" stroke="#38bdf8" stroke-width="3"/>
+    <circle cx="810" cy="392" r="42" fill="#8d5524"/>
+    <rect x="745" y="444" width="130" height="208" rx="20" fill="#0284c7"/>
+  </g>
+  <rect x="260" y="630" width="680" height="55" rx="10" fill="#e2e8f0"/>
+  <text x="600" y="762" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="600" font-size="24" fill="#bae6fd" letter-spacing="2">AHSOBC UK CHAPTER · COVENT GARDEN, LONDON · 22 SEPT 2018</text>
+</svg>
