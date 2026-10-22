@@ -18,7 +18,6 @@ def _load_manifest_rows():
 
 def test_gallery_photostream_and_albums_tabs():
     rows = _load_manifest_rows()
-    expected_count = len(rows)
     first_row = rows[0]
 
     with browser_page() as page:
@@ -26,17 +25,23 @@ def test_gallery_photostream_and_albums_tabs():
         assert resp is not None and resp.status == 200
         assert "Centennial Photo Gallery" in page.title()
 
-        # Verify Photostream card count matches manifest row count
+        # Verify Photostream includes both canonical manifest items and the Class of 1975 album (131 total)
         cards = page.locator("article.photo-card")
-        assert cards.count() == expected_count
+        assert cards.count() >= len(rows) + 126
         assert page.get_by_role("link", name=first_row["dcterms:title"]).is_visible()
 
-        # Switch to Flickr Albums tab and verify Occasion & 8-House Albums render
+        # Switch to Flickr Albums tab and verify Class of 1975 Album + 8-House Albums render
         page.locator("#tab-btn-albums").click()
         albums_panel = page.locator("#view-panel-albums")
         assert albums_panel.is_visible()
+        assert "Class of 1975" in albums_panel.inner_text()
         assert "Livingstone House" in albums_panel.inner_text()
         assert "Sellwood House" in albums_panel.inner_text()
+
+        # Click the Class of 1975 album card and verify cohort=1975 photos load
+        page.locator("a.album-card[data-album-val='1975']").first.click()
+        assert "cohort=1975" in page.url
+        assert page.locator("article.photo-card").count() >= 126
 
         # Filter by 1930s decade pill
         page.get_by_role("link", name="1930s").first.click()
