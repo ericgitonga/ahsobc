@@ -1,0 +1,25 @@
+name: Unit
+
+# Gates a PR on the PHP unit suite (tests/) — fast, pure-logic coverage, alongside (not instead
+# of) e2e.yml's Playwright suite. No server, secrets, or browser install needed.
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_mysql, gd, xml, intl, mbstring
+
+      - name: Lint PHP files
+        run: find public tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Run unit test suite
+        run: php tests/run.php
