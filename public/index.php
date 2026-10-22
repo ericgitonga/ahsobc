@@ -12,6 +12,17 @@ require_once __DIR__ . '/includes/config.php';
     <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 <body>
+    <header class="site-topbar">
+        <a class="site-brand" href="/">
+            <img src="/assets/img/obc-logo.jpg" alt="Alliance High School Old Boys Club">
+            <span class="site-brand-name">AHSOBC</span>
+        </a>
+        <nav class="site-nav" aria-label="Main Navigation">
+            <a class="site-nav-link active" href="/">Home</a>
+            <a class="site-nav-link site-nav-cta" href="<?= htmlspecialchars(AHSOBC_GALLERY_PATH, ENT_QUOTES, 'UTF-8') ?>">Centennial Photo Gallery</a>
+        </nav>
+    </header>
+
     <main class="card">
         <img class="logo" src="/assets/img/obc-logo.jpg" alt="Alliance High School - Strong to Serve">
 

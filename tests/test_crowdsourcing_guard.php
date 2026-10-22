@@ -58,6 +58,35 @@ $TESTS = [
             throw new \RuntimeException('Valid face_id submission failed: ' . json_encode($faceId['errors']));
         }
     },
+    'validates_csrf_editor_token_and_dpa_takedown_requests' => function (): void {
+        $token = bin2hex(random_bytes(32));
+        if (!ahsobc_verify_csrf_token($token, $token)) {
+            throw new \RuntimeException('Expected matching CSRF token to pass verification');
+        }
+        if (ahsobc_verify_csrf_token('wrong_token', $token)) {
+            throw new \RuntimeException('Expected mismatched CSRF token to fail verification');
+        }
+        if (!ahsobc_verify_editor_token('secret-archivist-key', 'secret-archivist-key')) {
+            throw new \RuntimeException('Expected matching editor token to pass verification');
+        }
+        if (ahsobc_verify_editor_token('wrong-key', 'secret-archivist-key')) {
+            throw new \RuntimeException('Expected mismatched editor token to fail verification');
+        }
+
+        // Verify Kenya DPA 2019 Takedown submission (Issue #17)
+        $takedown = ahsobc_validate_crowdsourced_submission([
+            'website_url_hp' => '',
+            'dpa_consent' => '1',
+            'contribution_type' => 'dpa_takedown',
+            'submitter_name' => 'Dr. Joseph Kamau',
+            'submitter_email' => 'kamau@example.org',
+            'target_item_id' => '1985-25th-reunion-dinner',
+            'takedown_reason' => 'Please update my school number attribution or remove the tag per Kenya DPA 2019.',
+        ]);
+        if (!$takedown['valid']) {
+            throw new \RuntimeException('Valid dpa_takedown submission failed: ' . json_encode($takedown['errors']));
+        }
+    },
     'enforces_sliding_window_ip_rate_limit' => function (): void {
         $tmpFile = sys_get_temp_dir() . '/ahsobc_test_rl_' . uniqid('', true) . '.json';
         try {

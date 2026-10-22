@@ -32,5 +32,13 @@ $TESTS = [
         if ($res['valid'] || count($res['errors']) < 2) {
             throw new \RuntimeException('Expected formula injection and invalid vocab errors: ' . json_encode($res));
         }
+
+        // Verify leading '-' and '|' formula injection payloads are also rejected (F-03 / Issue #18)
+        if (!ahsobc_has_csv_injection('-2+3+cmd|\' /C calc\'!A0')) {
+            throw new \RuntimeException('Expected leading minus formula payload to be flagged');
+        }
+        if (!ahsobc_has_csv_injection('|cmd')) {
+            throw new \RuntimeException('Expected leading pipe DDE payload to be flagged');
+        }
     },
 ];

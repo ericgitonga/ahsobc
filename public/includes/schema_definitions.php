@@ -222,6 +222,12 @@ const AHSOBC_CONTRIBUTION_TYPES = [
         'default_context' => 'School Days',
         'summary' => 'Alumni can query a single peer\'s profile to view their school-day portraits side-by-side with photos from reunions 40 years later.',
     ],
+    'dpa_takedown' => [
+        'code' => 'DPA 2019 TAKEDOWN',
+        'title' => 'Kenya DPA (2019) Takedown / Privacy Objection',
+        'default_context' => 'School Days',
+        'summary' => 'Living alumni or data subjects may request attribution correction or immediate removal of a photograph or personal identification tag under the Kenya Data Protection Act (2019).',
+    ],
 ];
 
 const AHSOBC_DPA_CONSENT_TEXT = 'I confirm that I have the right to share this archival photograph or identification with the Alliance High School Old Boys Club (AHSOBC) Centennial Repository under the Kenya Data Protection Act (2019), and I understand that living alumni may request attribution updates or photo removal at any time.';

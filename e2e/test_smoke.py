@@ -17,6 +17,13 @@ def test_index_placeholder_loads():
         assert gallery_link.is_visible()
         assert gallery_link.get_attribute("href") == "/gallery/"
 
+        # Verify top navigation bar link to Centennial Photo Gallery
+        nav_gallery_link = page.locator("header.site-topbar nav").get_by_role(
+            "link", name="Centennial Photo Gallery"
+        )
+        assert nav_gallery_link.is_visible()
+        assert nav_gallery_link.get_attribute("href") == "/gallery/"
+
 
 def test_health_endpoint_returns_ok():
     with urllib.request.urlopen(f"{BASE_URL}/api/health.php") as resp:
