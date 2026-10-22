@@ -1,0 +1,9 @@
+; Angryhosting MySQL Parameters for Omeka S (OmekaS.pdf Phase 1.3 & 2.2)
+; Copy this file to gallery/config/database.ini on the server (chmod 0600)
+; and substitute the generated password for user egimba_obc.
+user     = "egimba_obc"
+password = "[YourGeneratedSecretPass]"
+dbname   = "egimba_ahs"
+host     = "localhost"
+port     = 3306
+; Default Collation on database egimba_ahs: utf8mb4_unicode_ci

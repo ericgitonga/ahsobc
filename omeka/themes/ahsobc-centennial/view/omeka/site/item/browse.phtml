@@ -1,0 +1,58 @@
+<?php
+/**
+ * Omeka S Item Browse Template for AHSOBC Centennial Archive Theme.
+ * Includes the 1926–2026 Decade Scrubber and Expanded Lifecycle metadata cards.
+ */
+$escape = $this->plugin('escapeHtml');
+$decades = ['1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'];
+?>
+<section class="centennial-hero">
+    <h1>Centennial Photographic Repository (1926–2026)</h1>
+    <p>Explore 100 years of Alliance High School memories across student days, milestone reunions, regional chapters, and informal encounters.</p>
+    <div class="timeline-scrubber">
+        <div class="timeline-scrubber-label">Centennial Timeline Scrubber (By Decade)</div>
+        <div class="decade-pills">
+            <a class="decade-pill" href="<?= $escape($this->url(null, [], true)) ?>">All Eras</a>
+            <?php foreach ($decades as $dec): ?>
+                <a class="decade-pill" href="<?= $escape($this->url(null, [], ['query' => ['fulltext_search' => substr($dec, 0, 3)]], true)) ?>">
+                    <?= $escape($dec) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<div class="photo-grid">
+    <?php foreach ($items as $item): ?>
+        <?php
+        $title = $item->displayTitle();
+        $context = $item->value('dcterms:type', ['default' => 'School Days']);
+        $temporal = $item->value('dcterms:temporal', ['default' => '']);
+        $cohort = $item->value('dcterms:subject', ['default' => '']);
+        $spatial = $item->value('dcterms:spatial', ['default' => '']);
+        ?>
+        <article class="photo-card">
+            <div class="photo-card-body">
+                <div class="badge-row">
+                    <span class="badge badge-context"><?= $escape((string) $context) ?></span>
+                    <?php if ($temporal): ?>
+                        <span class="badge" style="background:#eef5fb;color:#072a47;"><?= $escape((string) $temporal) ?></span>
+                    <?php endif; ?>
+                </div>
+                <h2 class="photo-card-title"><?= $item->link($title) ?></h2>
+                <dl class="meta-dl">
+                    <?php if ($cohort): ?>
+                        <dt>Class Cohort(s)</dt>
+                        <dd><?= $escape((string) $cohort) ?></dd>
+                    <?php endif; ?>
+                    <?php if ($spatial): ?>
+                        <dt>Location / Venue</dt>
+                        <dd><?= $escape((string) $spatial) ?></dd>
+                    <?php endif; ?>
+                </dl>
+            </div>
+        </article>
+    <?php endforeach; ?>
+</div>
+
+<?= $this->pagination() ?>

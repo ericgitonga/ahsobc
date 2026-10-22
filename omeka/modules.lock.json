@@ -1,0 +1,66 @@
+{
+  "omeka_core": {
+    "version": "4.1.1",
+    "download_url": "https://github.com/omeka/omeka-s/releases/download/v4.1.1/omeka-s-4.1.1.zip"
+  },
+  "activation_order": [
+    "Common",
+    "CustomVocab",
+    "IiifServer",
+    "ImageServer",
+    "Mirador",
+    "CSVImport",
+    "Mapping",
+    "Collecting"
+  ],
+  "modules": {
+    "Common": {
+      "version": "3.4.62",
+      "repo": "https://github.com/Daniel-KM/Omeka-S-module-Common.git",
+      "release_zip": "https://github.com/Daniel-KM/Omeka-S-module-Common/releases/download/3.4.62/Common-3.4.62.zip",
+      "purpose": "Foundation module required by Daniel-KM IIIF and viewer modules."
+    },
+    "CustomVocab": {
+      "version": "2.0.2",
+      "repo": "https://github.com/omeka-s-modules/CustomVocab.git",
+      "release_zip": "https://github.com/omeka-s-modules/CustomVocab/releases/download/v2.0.2/CustomVocab-2.0.2.zip",
+      "purpose": "Controlled vocabularies for Photo Context / Category and AHS Houses."
+    },
+    "IiifServer": {
+      "version": "3.6.21",
+      "repo": "https://github.com/Daniel-KM/Omeka-S-module-IiifServer.git",
+      "release_zip": "https://github.com/Daniel-KM/Omeka-S-module-IiifServer/releases/download/3.6.21/IiifServer-3.6.21.zip",
+      "purpose": "IIIF Presentation API v2/v3 manifest server for archival photographs."
+    },
+    "ImageServer": {
+      "version": "3.6.19",
+      "repo": "https://github.com/Daniel-KM/Omeka-S-module-ImageServer.git",
+      "release_zip": "https://github.com/Daniel-KM/Omeka-S-module-ImageServer/releases/download/3.6.19/ImageServer-3.6.19.zip",
+      "purpose": "Local deep-zoom tile pyramid generator for multi-megapixel historical scans."
+    },
+    "Mirador": {
+      "version": "3.4.8",
+      "repo": "https://github.com/Daniel-KM/Omeka-S-module-Mirador.git",
+      "release_zip": "https://github.com/Daniel-KM/Omeka-S-module-Mirador/releases/download/3.4.8/Mirador-3.4.8.zip",
+      "purpose": "Embedded IIIF Mirador deep-zoom viewer for 100-person group panoramas."
+    },
+    "CSVImport": {
+      "version": "2.6.1",
+      "repo": "https://github.com/omeka-s-modules/CSVImport.git",
+      "release_zip": "https://github.com/omeka-s-modules/CSVImport/releases/download/v2.6.1/CSVImport-2.6.1.zip",
+      "purpose": "Batch CSV metadata and staged file ingestion."
+    },
+    "Mapping": {
+      "version": "2.1.0",
+      "repo": "https://github.com/omeka-s-modules/Mapping.git",
+      "release_zip": "https://github.com/omeka-s-modules/Mapping/releases/download/v2.1.0/Mapping-2.1.0.zip",
+      "purpose": "GIS pin mapping for AHS campus buildings, reunion venues, and global chapters."
+    },
+    "Collecting": {
+      "version": "1.11.0",
+      "repo": "https://github.com/omeka-s-modules/Collecting.git",
+      "release_zip": "https://github.com/omeka-s-modules/Collecting/releases/download/v1.11.0/Collecting-1.11.0.zip",
+      "purpose": "Public moderated crowdsourcing forms for alumni photos and face identification."
+    }
+  }
+}

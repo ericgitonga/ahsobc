@@ -1,0 +1,57 @@
+name: Deploy to Angryhosting
+
+# Deploys the public webroot and Omeka S configuration/theme/scripts to Angryhosting
+# (https://www.ahsobc.or.ke/) via FTPS/SSH when changes land on main and deployment
+# secrets are configured.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_mysql, gd, xml, intl, mbstring
+
+      - name: Validate PHP syntax & staging manifest before deploy
+        run: |
+          find public omeka tests -name '*.php' -print0 | xargs -0 -n1 php -l
+          php omeka/scripts/validate_staging.php
+          php tests/run.php
+
+      - name: Check if Angryhosting FTPS credentials are configured
+        id: check_creds
+        env:
+          FTP_SERVER: ${{ secrets.ANGRYHOSTING_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.ANGRYHOSTING_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.ANGRYHOSTING_FTP_PASSWORD }}
+        run: |
+          if [ -z "$FTP_SERVER" ] || [ -z "$FTP_USERNAME" ] || [ -z "$FTP_PASSWORD" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Angryhosting FTPS secrets not yet configured; skipping remote upload."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync public/ webroot to Angryhosting via FTPS
+        if: steps.check_creds.outputs.configured == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.ANGRYHOSTING_FTP_SERVER }}
+          username: ${{ secrets.ANGRYHOSTING_FTP_USERNAME }}
+          password: ${{ secrets.ANGRYHOSTING_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./public/
+          server-dir: ${{ secrets.ANGRYHOSTING_REMOTE_DIR || '/ahsobc.or.ke/www/html/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/database.ini
+            **/.omeka-runtime/**

@@ -1,0 +1,39 @@
+<?php
+/**
+ * Omeka S local.config.php for Angryhosting Shared/Managed Hosting (OmekaS.pdf Phase 2.2).
+ *
+ * Defines the PHP CLI binary path so background CSVImport jobs and IIIF tile pyramid
+ * generation queues execute smoothly via perform-job.php.
+ */
+return [
+    'logger' => [
+        'log' => true,
+        'priority' => \Laminas\Log\Logger::NOTICE,
+    ],
+    'http_client' => [
+        'sslcapath' => null,
+        'sslcafile' => null,
+    ],
+    'cli' => [
+        'phpcli_path' => getenv('AHSOBC_PHPCLI_PATH') ?: '/usr/bin/php',
+    ],
+    'thumbnails' => [
+        'types' => [
+            'large' => ['constraint' => 1200],
+            'medium' => ['constraint' => 480],
+            'square' => ['constraint' => 240],
+        ],
+        'thumbnailer_options' => [
+            'imagemagick_dir' => '/usr/bin',
+        ],
+    ],
+    'translator' => [
+        'locale' => 'en_GB',
+    ],
+    'service_manager' => [
+        'aliases' => [
+            'Omeka\File\Store' => 'Omeka\File\Store\Local',
+            'Omeka\File\Thumbnailer' => 'Omeka\File\Thumbnailer\Gd',
+        ],
+    ],
+];
