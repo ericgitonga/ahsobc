@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 825" width="1200" height="825" role="img" aria-label="1985 Class of 1960 Silver Reunion Gala photograph">
+  <defs>
+    <linearGradient id="ballroom" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2c1d11"/>
+      <stop offset="55%" stop-color="#4a321f"/>
+      <stop offset="100%" stop-color="#1f140b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="825" fill="url(#ballroom)"/>
+  <!-- Warm Chandelier Lights -->
+  <circle cx="350" cy="150" r="65" fill="#f59e0b" opacity="0.22"/>
+  <circle cx="600" cy="130" r="85" fill="#fbbf24" opacity="0.26"/>
+  <circle cx="850" cy="150" r="65" fill="#f59e0b" opacity="0.22"/>
+  <!-- Banner -->
+  <rect x="230" y="180" width="740" height="85" rx="10" fill="#072a47" stroke="#c99700" stroke-width="3"/>
+  <text x="600" y="232" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="28" fill="#fbbf24" letter-spacing="2">AHS CLASS OF 1960 · 25TH SILVER REUNION GALA (1985)</text>
+  <!-- Gala Banquet Table & Old Boys in Suits -->
+  <g fill="#0b3b60" stroke="#e2e8f0" stroke-width="2">
+    <circle cx="290" cy="435" r="34" fill="#7c4dff"/><circle cx="290" cy="435" r="34" fill="#6b4423" stroke="none"/>
+    <rect x="240" y="476" width="100" height="170" rx="16"/>
+    <!-- Position 2 from Left: Dr. Joseph Kamau Githunguri (#1842) -->
+    <circle cx="465" cy="422" r="36" fill="#6b4423" stroke="#fbbf24" stroke-width="3"/>
+    <rect x="412" y="465" width="106" height="180" rx="16" fill="#0b4f82"/>
+    <circle cx="645" cy="426" r="34" fill="#6b4423" stroke="none"/>
+    <rect x="595" y="467" width="100" height="175" rx="16"/>
+    <circle cx="820" cy="432" r="34" fill="#6b4423" stroke="none"/>
+    <rect x="770" y="473" width="100" height="172" rx="16"/>
+  </g>
+  <rect x="140" y="610" width="920" height="110" rx="8" fill="#f8fafc" opacity="0.92"/>
+  <text x="600" y="772" text-anchor="middle" font-family="system-ui, sans-serif" font-size="23" fill="#fde68a" letter-spacing="2">GRAND BALLROOM, NAIROBI · 15 JUNE 1985 · FRANCIS HOUSE ALUMNI</text>
+</svg>

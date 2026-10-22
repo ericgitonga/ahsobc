@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.3.0] - 2026-10-22
+
+### Added
+
+- Flickr-style Headless Omeka S Visual Gallery, Albums & Inline Metadata Editor (`/gallery/`, `/api/gallery.php`):
+  - Clean Flickr-style sub-navigation (`Photostream`, `Albums`, `People`) and tight edge-to-edge Photostream image grid with period-styled archival previews (`public/assets/img/archive/*.svg`) and zero page clutter (closes #14)
+  - Visual Album cover cards (`ahsobc_build_albums()`) organized by Occasion (`School Days`, `Milestone Reunion`, `Regional Gathering`, `Informal Encounter`), the 8 AHS Houses in institutional order (`Livingstone` → `Sellwood`), and Centennial Decades
+  - Per-image Theatre Lightbox (`#ahsobc-lightbox` + `public/assets/js/gallery-ui.js`) with `←`/`→`/`Esc` navigation, Deep-Zoom, IIIF `xywh` face-tag bounding boxes, and an inline `✎ Edit Metadata` mode (`POST /api/gallery.php`, `ahsobc_update_item_metadata()`) to edit and save Title, Caption, Album/Category, House, Date, Cohort(s), and Location directly on any photograph
+  - Clean `+ Submit Photo` modal dialog (`#upload-modal`) for uploading new photos or tagging classmates without cluttering the main Photostream
+
+tag: `v0.3.0`
+
 ## [0.2.0] - 2026-10-22
 
 ### Added

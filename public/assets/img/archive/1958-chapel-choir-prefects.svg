@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 825" width="1200" height="825" role="img" aria-label="1958 Carey Francis Era Chapel Choir and Prefects archival photograph">
+  <defs>
+    <linearGradient id="bwSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d9dee3"/>
+      <stop offset="65%" stop-color="#9aa5b1"/>
+      <stop offset="100%" stop-color="#485563"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="825" fill="url(#bwSky)"/>
+  <!-- Carey Francis Memorial Chapel Steps & Arch -->
+  <polygon points="320,330 600,130 880,330" fill="#52606d"/>
+  <rect x="350" y="330" width="500" height="240" fill="#616e7c"/>
+  <path d="M525,540 L525,390 A75,75 0 0,1 675,390 L675,540 Z" fill="#1f2933"/>
+  <!-- Stone Steps -->
+  <rect x="120" y="545" width="960" height="45" fill="#cbd2d9"/>
+  <rect x="80" y="590" width="1040" height="50" fill="#9aa5b1"/>
+  <rect x="40" y="640" width="1120" height="185" fill="#323f4b"/>
+  <!-- Row 2 (Standing on upper step) -->
+  <g fill="#1f2933">
+    <circle cx="300" cy="400" r="26"/><rect x="268" y="430" width="64" height="135" rx="10"/>
+    <circle cx="420" cy="396" r="26"/><rect x="388" y="426" width="64" height="138" rx="10"/>
+    <circle cx="545" cy="394" r="26"/><rect x="513" y="424" width="64" height="140" rx="10"/>
+    <!-- Position 4: Dr. Joseph Kamau Githunguri (#1842, Class of 1960, Francis House) -->
+    <circle cx="675" cy="392" r="28"/><rect x="641" y="424" width="68" height="142" rx="10" stroke="#e4e7eb" stroke-width="2"/>
+    <circle cx="800" cy="398" r="26"/><rect x="768" y="428" width="64" height="136" rx="10"/>
+    <circle cx="915" cy="402" r="26"/><rect x="883" y="432" width="64" height="132" rx="10"/>
+  </g>
+  <!-- Row 1 (Choir & Prefects in white surplices) -->
+  <g fill="#f5f7fa" stroke="#323f4b" stroke-width="2">
+    <circle cx="250" cy="510" r="27" fill="#1f2933"/><rect x="216" y="542" width="68" height="140" rx="10"/>
+    <circle cx="390" cy="508" r="27" fill="#1f2933"/><rect x="356" y="540" width="68" height="142" rx="10"/>
+    <circle cx="530" cy="505" r="27" fill="#1f2933"/><rect x="496" y="537" width="68" height="145" rx="10"/>
+    <circle cx="670" cy="505" r="27" fill="#1f2933"/><rect x="636" y="537" width="68" height="145" rx="10"/>
+    <circle cx="810" cy="508" r="27" fill="#1f2933"/><rect x="776" y="540" width="68" height="142" rx="10"/>
+    <circle cx="950" cy="512" r="27" fill="#1f2933"/><rect x="916" y="544" width="68" height="138" rx="10"/>
+  </g>
+  <text x="600" y="765" text-anchor="middle" font-family="Georgia, serif" font-size="25" fill="#f5f7fa" letter-spacing="2.5">CAREY FRANCIS MEMORIAL CHAPEL · CHOIR &amp; PREFECTS · CIRCA 1958</text>
+</svg>
