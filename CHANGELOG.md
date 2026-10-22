@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org) (pre-1.0: MINOR = new features/user-facing
 behaviour, PATCH = fixes/docs/housekeeping — see `SKILL.md`).
 
+## [0.5.0] - 2026-10-23
+
+### Added
+
+- Ingested the **Class of 1975** Golden Jubilee & Reunion photograph collection (126 photographs in `public/assets/img/archive/class-of-1975/class-of-1975-001.jpg` … `126.jpg`) into the Omeka S catalog (`omeka/scripts/provision_schema.php`) and added a **Class Cohort Albums** shelf to the Flickr `Albums` tab (`public/includes/headless_gallery.php`) featuring the **Class of 1975** album (`/gallery/?cohort=1975`) with full per-image Lightbox metadata viewing and inline editing (closes #21)
+
+tag: `v0.5.0`
+
 ## [0.4.0] - 2026-10-22
 
 ### Added

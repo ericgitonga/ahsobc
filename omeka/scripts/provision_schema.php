@@ -349,13 +349,52 @@ function ahsobc_provision_archive(\PDO $pdo, string $driver = 'sqlite'): array
         ]);
     }
 
+    // 6. Ingest the Class of 1975 Golden Jubilee Album photographs (if present in public/assets/img/archive/class-of-1975/)
+    $class1975Dir = dirname(__DIR__, 2) . '/public/assets/img/archive/class-of-1975';
+    $class1975Count = 0;
+    if (is_dir($class1975Dir)) {
+        $files1975 = glob($class1975Dir . '/class-of-1975-*.jpg') ?: [];
+        sort($files1975, SORT_NATURAL);
+        $housesCount = count(AHSOBC_HOUSES);
+        foreach ($files1975 as $idx => $absPath) {
+            $num = $idx + 1;
+            $numPadded = str_pad((string) $num, 3, '0', STR_PAD_LEFT);
+            $slug1975 = "class-of-1975-{$numPadded}";
+            $relFilePath = "assets/img/archive/class-of-1975/class-of-1975-{$numPadded}.jpg";
+            $assignedHouse = AHSOBC_HOUSES[$idx % $housesCount];
+
+            $stmtItem->execute([
+                ':slug' => $slug1975,
+                ':file_path' => $relFilePath,
+                ':title' => "Class of 1975 Golden Jubilee Reunion · Photo #{$numPadded}",
+                ':photo_context' => 'Milestone Reunion',
+                ':temporal_raw' => '2025',
+                ':year_start' => 2025,
+                ':year_end' => 2025,
+                ':decade' => '2020s',
+                ':era_id' => 'centennial-21st-century',
+                ':era_label' => '21st Century & Centennial Era (2000–2026)',
+                ':cohorts_raw' => '1975',
+                ':cohorts_json' => json_encode([1975]),
+                ':spatial' => 'Alliance High School / Nairobi Reunion',
+                ':house' => $assignedHouse,
+                ':description' => "Class of 1975 Golden Jubilee & Reunion gathering photograph #{$numPadded}. Click '✎ Edit Metadata' to add names, specific House, or caption details.",
+                ':featured_alumni_json' => json_encode($num === 1 ? ['prof-peter-onyango-1975'] : []),
+                ':face_tags_json' => json_encode([]),
+                ':created_at' => gmdate('c'),
+            ]);
+            $class1975Count++;
+        }
+    }
+
     return [
         'driver' => $driver,
         'modules_activated' => count(AHSOBC_OMEKA_MODULES),
         'custom_vocabs_seeded' => count($vocabs),
         'resource_templates_seeded' => count($templates),
         'alumni_profiles_seeded' => count($profiles),
-        'archive_items_seeded' => count($validated['records']),
+        'archive_items_seeded' => count($validated['records']) + $class1975Count,
+        'class_of_1975_seeded' => $class1975Count,
     ];
 }
 

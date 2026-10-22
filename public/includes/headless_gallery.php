@@ -14,10 +14,16 @@ require_once dirname(__DIR__, 2) . '/omeka/scripts/provision_schema.php';
 function ahsobc_resolve_item_preview_url(string $slug, string $filePath): string
 {
     $publicRoot = dirname(__DIR__);
+    $cleanRel = '/' . ltrim($filePath, '/');
+    if (str_starts_with($cleanRel, '/assets/img/archive/') && is_file($publicRoot . $cleanRel)) {
+        return $cleanRel;
+    }
+
     $basename = pathinfo($filePath, PATHINFO_FILENAME);
 
     $candidates = [
         "/gallery/files/large/{$basename}.jpg",
+        "/assets/img/archive/class-of-1975/{$slug}.jpg",
         "/assets/img/archive/{$slug}.jpg",
         "/assets/img/archive/{$slug}.png",
         "/assets/img/archive/{$slug}.svg",
@@ -91,10 +97,39 @@ function ahsobc_parse_face_tag_regions(array $faceTags): array
  */
 function ahsobc_build_albums(\PDO $pdo): array
 {
-    $allRows = $pdo->query('SELECT slug, file_path, photo_context, house, decade, temporal_raw FROM archive_items ORDER BY year_start ASC, id ASC')->fetchAll();
+    $allRows = $pdo->query('SELECT slug, file_path, photo_context, house, decade, cohorts_raw, temporal_raw FROM archive_items ORDER BY year_start ASC, id ASC')->fetchAll();
     $albums = [];
 
-    // 1. Occasion / Lifecycle Context Albums
+    // 1. Featured Class Cohort Albums (e.g. Class of 1975 Golden Jubilee Album)
+    $featuredCohorts = [
+        '1975' => 'Class of 1975 Golden Jubilee & Reunion Collection.',
+        '1960' => 'Class of 1960 Silver & Centennial Reunion photographs.',
+        '1974' => 'Class of 1974 Chapter & Reunion photographs.',
+        '1932' => 'Pioneer Class of 1932 archival plates.',
+    ];
+    foreach ($featuredCohorts as $cohortYear => $cohortSubtitle) {
+        $matches = array_values(array_filter(
+            $allRows,
+            static fn(array $r): bool => str_contains((string) $r['cohorts_raw'], (string) $cohortYear)
+        ));
+        if (count($matches) === 0) {
+            continue;
+        }
+        $coverRow = $matches[0];
+        $albums[] = [
+            'id' => 'cohort-' . $cohortYear,
+            'group' => 'Class Cohort Albums',
+            'title' => "Class of {$cohortYear}",
+            'subtitle' => $cohortSubtitle,
+            'filter_key' => 'cohort',
+            'filter_value' => (string) $cohortYear,
+            'url' => '/gallery/?cohort=' . rawurlencode((string) $cohortYear),
+            'count' => count($matches),
+            'cover_url' => ahsobc_resolve_item_preview_url($coverRow['slug'], $coverRow['file_path']),
+        ];
+    }
+
+    // 2. Occasion / Lifecycle Context Albums
     foreach (AHSOBC_PHOTO_CONTEXTS as $ctxLabel => $ctxDesc) {
         $matches = array_values(array_filter($allRows, static fn(array $r): bool => $r['photo_context'] === $ctxLabel));
         $coverRow = $matches[0] ?? ($allRows[0] ?? null);
@@ -281,7 +316,9 @@ function ahsobc_query_headless_gallery(\PDO $pdo, string $driver, array $query =
 {
     try {
         $countRow = $pdo->query('SELECT COUNT(*) AS c FROM archive_items')->fetch();
-        if ((int) ($countRow['c'] ?? 0) === 0) {
+        $currentCount = (int) ($countRow['c'] ?? 0);
+        $class1975Dir = dirname(__DIR__) . '/assets/img/archive/class-of-1975';
+        if ($currentCount === 0 || ($currentCount < 50 && is_dir($class1975Dir))) {
             ahsobc_provision_archive($pdo, $driver);
         }
     } catch (\PDOException $e) {
