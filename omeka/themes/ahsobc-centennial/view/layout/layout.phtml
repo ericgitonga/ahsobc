@@ -1,0 +1,41 @@
+<?php
+/**
+ * Omeka S Layout Template for AHSOBC Centennial Archive Theme (omeka/themes/ahsobc-centennial).
+ */
+$escape = $this->plugin('escapeHtml');
+$siteTitle = $site->title();
+$this->headLink()->prependStylesheet($this->assetUrl('css/style.css'));
+?>
+<?= $this->doctype() ?>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?= $this->headTitle($siteTitle)->setSeparator(' · ') ?>
+    <?= $this->headMeta() ?>
+    <?= $this->headLink() ?>
+    <?= $this->headStyle() ?>
+    <?= $this->headScript() ?>
+</head>
+<body>
+    <header class="ahsobc-topbar">
+        <a class="ahsobc-brand" href="<?= $escape($site->url()) ?>">
+            <img src="/assets/img/obc-logo.jpg" alt="Alliance High School Old Boys Club">
+            <div>
+                <div class="ahsobc-brand-title"><?= $escape($siteTitle) ?></div>
+                <div class="ahsobc-brand-sub">Strong to Serve · Centennial Photo Archive (1926–2026)</div>
+            </div>
+        </a>
+        <nav class="ahsobc-nav" aria-label="Archive Navigation">
+            <a href="/">Main Site</a>
+            <a href="<?= $escape($site->url()) ?>" class="active">Centennial Gallery</a>
+            <?= $site->publicNav()->menu()->renderMenu(null, ['maxDepth' => 1]) ?>
+        </nav>
+    </header>
+
+    <main class="ahsobc-container" role="main">
+        <?= $this->messages() ?>
+        <?= $this->content ?>
+    </main>
+</body>
+</html>

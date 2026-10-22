@@ -1,0 +1,23 @@
+# Root Apache Configuration for https://www.ahsobc.or.ke/
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Force HTTPS in production on ahsobc.or.ke
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP_HOST} ^(www\.)?ahsobc\.or\.ke$ [NC]
+    RewriteRule ^ https://www.ahsobc.or.ke%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Block direct HTTP access to internal PHP includes
+<IfModule mod_rewrite.c>
+    RewriteRule ^includes/ - [F,L]
+</IfModule>
+
+DirectoryIndex index.php index.html

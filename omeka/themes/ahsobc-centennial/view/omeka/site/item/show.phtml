@@ -1,0 +1,29 @@
+<?php
+/**
+ * Omeka S Item Show Template for AHSOBC Centennial Archive Theme.
+ * Renders the Mirador IIIF deep-zoom viewer, Expanded Lifecycle Dublin Core properties,
+ * and linked Alumni Profile lifespan relationships.
+ */
+$escape = $this->plugin('escapeHtml');
+?>
+<article class="section-card">
+    <div class="badge-row" style="margin-bottom:0.75rem;">
+        <span class="badge badge-context"><?= $escape((string) $item->value('dcterms:type', ['default' => 'Archival Photograph'])) ?></span>
+        <span class="badge" style="background:#eef5fb;color:#072a47;"><?= $escape((string) $item->value('dcterms:temporal', ['default' => ''])) ?></span>
+    </div>
+
+    <h1><?= $escape($item->displayTitle()) ?></h1>
+
+    <div class="mirador-frame" style="margin-top:1rem;">
+        <?php $this->trigger('view.show.before'); ?>
+        <?php foreach ($item->media() as $media): ?>
+            <?= $media->render() ?>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="item-metadata">
+        <?= $item->displayValues() ?>
+    </div>
+
+    <?php $this->trigger('view.show.after'); ?>
+</article>

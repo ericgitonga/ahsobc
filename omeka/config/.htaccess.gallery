@@ -1,0 +1,17 @@
+# Apache mod_rewrite & Security Configuration for /gallery/ (OmekaS.pdf Phase 2.2)
+RewriteEngine On
+RewriteBase /gallery/
+
+# Block direct HTTP access to sensitive configuration and staging manifests
+RewriteRule ^config/ - [F,L]
+RewriteRule ^logs/ - [F,L]
+RewriteRule ^files/staging/.*\.csv$ - [F,L]
+
+# Allow direct serving of existing static assets & generated media derivatives
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+<FilesMatch "\.(ini|dist|lock|log|sql|gz)$">
+    Require all denied
+</FilesMatch>

@@ -1,0 +1,11 @@
+# Hardened Upload Execution Lock for gallery/files/
+# Prevents any uploaded media or derivative file from being interpreted as executable PHP/CGI.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+<FilesMatch "\.(php|phtml|php[0-9]|phar|inc|pl|py|cgi|sh|bash)$">
+    Require all denied
+</FilesMatch>
+
+Options -ExecCGI -Indexes
